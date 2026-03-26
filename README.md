@@ -1,4 +1,4 @@
-# ZeroTier One Native Package for fnOS
+# ZeroTier One for fnOS
 
 本应用是针对飞牛 fnOS 深度定制的 ZeroTier One 客户端，集成了高性能网络服务与现代化的 Web 管理界面。
 
