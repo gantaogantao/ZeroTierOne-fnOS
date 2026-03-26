@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>ZeroTier One | fnos Plugin</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "background": "#0b0e14",
+                        "primary": "#FFB000",
+                        "on-primary": "#221b00",
+                        "surface": "#10131a",
+                        "on-surface": "#e1e2eb",
+                        "on-surface-variant": "#94a3b8",
+                        "outline": "#4d4732",
+                    },
+                    fontFamily: { "headline": ["Inter"], "body": ["Inter"], "label": ["Inter"], "display": ["Inter"] },
+                    borderRadius: { "DEFAULT": "0.75rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .kinetic-bg {
+            background-color: #0b0e14;
+            background-image: 
+                radial-gradient(circle at 100% 0%, rgba(255, 176, 0, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 0% 100%, rgba(255, 176, 0, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+        .glass-card {
+            backdrop-filter: blur(40px) saturate(180%);
+            background: rgba(16, 19, 26, 0.7);
+            border: 1px solid rgba(255, 176, 0, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .shimmer-btn {
+            background: linear-gradient(135deg, #FFB000 0%, #CC8E00 50%, #FFB000 100%);
+            background-size: 200% 100%;
+            transition: all 0.3s ease;
+        }
+        .shimmer-btn:hover:not(:disabled) {
+            background-position: 100% 0;
+            box-shadow: 0 0 20px rgba(255, 176, 0, 0.4);
+        }
+        .breathing-glow {
+            box-shadow: 0 0 12px rgba(255, 176, 0, 0.4);
+            animation: breathe 3s ease-in-out infinite;
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 0.5; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 176, 0, 0.2); border-radius: 10px; }
+    </style>
+</head>
+<body class="font-body text-on-surface kinetic-bg min-h-screen flex items-center justify-center p-4 tracking-wide">
+
+<div class="glass-card w-full max-w-[500px] rounded-2xl overflow-hidden flex flex-col">
+    <header class="p-6 pb-4 flex justify-between items-center border-b border-white/5">
+        <div class="flex items-center gap-3">
+            <div id="logo-container" class="h-9 w-9 bg-primary/10 rounded-[22.5%] flex items-center justify-center overflow-hidden">
+                <img alt="ZeroTier Logo" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0ugk8EklAj8p3TEhZP4MjHy1OmnTKZ8kl7sBPW7j643oNQya2qCC_w7ApT1he0z6FX_ue6cPdMJLpaOXAWWBMQd2Mh7vTI1tUNJLSE6mYUGIqlhxeuJwMucHF3rLHdhbkZ_ixd0d_b9mAEbTW0vOs4hdIR8IXQ4n79iJfU721dwKshCfDncRH02OVnjPyoygSir-POZa2EEyEUZ60ExGtcuKs14WMoLUuBKXE-v8c-Dpv5pplJyLoCz6kqJ8c720GSjA6J4J-3n1MH8"/>
+            </div>
+            <div>
+                <h1 class="font-headline font-extrabold text-lg leading-none tracking-[0.05em]">ZeroTier One</h1>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/10">
+            <div id="status-dot" class="w-2 h-2 rounded-full bg-white/20"></div>
+            <span id="status-text" class="font-label text-[10px] font-bold uppercase tracking-[0.25em]">OFFLINE</span>
+        </div>
+    </header>
+
+    <section class="p-6 space-y-4">
+        <div class="flex flex-col gap-1">
+            <span class="font-label text-[10px] uppercase tracking-[0.3em] text-primary/80 font-bold">JOIN NETWORK</span>
+        </div>
+        <div class="flex gap-2">
+            <div class="relative flex-1">
+                <input id="network-id-input" class="w-full bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-0 rounded-xl px-4 py-3 font-label text-sm tracking-wider transition-all placeholder:text-on-surface-variant/30 text-white" 
+                       placeholder="Enter a 16-digit network ID" type="text" maxlength="16"/>
+            </div>
+            <button id="connect-btn" onclick="joinNetwork()" class="shimmer-btn text-on-primary font-headline font-bold py-3 px-6 rounded-xl text-sm whitespace-nowrap active:scale-95 tracking-wider">Connect</button>
+        </div>
+    </section>
+
+    <section class="flex-1 px-6 pb-6 overflow-hidden flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-label text-[10px] uppercase tracking-[0.3em] text-on-surface-variant font-bold">SAVED NETWORKS</h3>
+            <span id="active-count" class="text-[10px] font-medium text-primary tracking-[0.1em]">0 Active</span>
+        </div>
+        <div id="networks-list" class="space-y-3 overflow-y-auto custom-scrollbar pr-1 max-h-[280px]">
+        </div>
+    </section>
+
+    <footer class="p-4 bg-black/20 border-t border-white/5 text-center">
+        <a class="text-[10px] font-label text-primary/60 hover:text-primary uppercase tracking-[0.3em] transition-colors flex items-center justify-center gap-1 group" href="https://my.zerotier.com" target="_blank">
+            ZeroTier Central 
+            <span class="material-symbols-outlined text-[12px] group-hover:translate-x-0.5 transition-transform">open_in_new</span>
+        </a>
+    </footer>
+</div>
+
+<script>
+    // 强化版烟花：侧边礼炮 + 金色闪星
+    function launchFireworks() {
+        const end = Date.now() + (2 * 1000);
+        const colors = ['#FFB000', '#FFD700', '#FFFFFF'];
+
+        (function frame() {
+            confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
+            confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
+            if (Date.now() < end) { requestAnimationFrame(frame); }
+        }());
+        
+        setTimeout(() => {
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: colors, shapes: ['star'] });
+        }, 200);
+    }
+
+    async function apiRequest(endpoint, method = 'GET', data = null) {
+        const options = { method, headers: { 'Content-Type': 'application/json' } };
+        if (data) options.body = JSON.stringify(data);
+        try {
+            const response = await fetch(endpoint, options);
+            return await response.json();
+        } catch (e) { return null; }
+    }
+
+    async function loadStatus() {
+        const data = await apiRequest('/api/status');
+        if (!data) return;
+
+        const statusText = document.getElementById('status-text');
+        const statusDot = document.getElementById('status-dot');
+        const logoContainer = document.getElementById('logo-container');
+        
+        if (data.running) {
+            statusText.innerText = "CONNECTED";
+            statusDot.className = "w-2 h-2 rounded-full bg-primary breathing-glow";
+            logoContainer.classList.add('breathing-glow');
+        } else {
+            statusText.innerText = "OFFLINE";
+            statusDot.className = "w-2 h-2 rounded-full bg-white/20";
+            logoContainer.classList.remove('breathing-glow');
+        }
+
+        const listContainer = document.getElementById('networks-list');
+        const networks = data.networks || [];
+        document.getElementById('active-count').innerText = `${networks.length} Active`;
+        listContainer.innerHTML = '';
+
+        networks.forEach(net => {
+            const addrs = net.assignedAddresses || [];
+            // 分别过滤 IPv4 和 IPv6
+            const ipv4 = addrs.find(a => !a.includes(':'))?.split('/')[0];
+            const ipv6 = addrs.find(a => a.includes(':'))?.split('/')[0];
+            
+            // 地址显示逻辑：并存则双行，否则单行
+            let addrHtml = '<span>—</span>';
+            if (ipv4 && ipv6) {
+                addrHtml = `<div class="flex flex-col"><span>${ipv4}</span><span class="text-[8px] opacity-40 leading-tight">${ipv6}</span></div>`;
+            } else if (ipv4 || ipv6) {
+                addrHtml = `<span>${ipv4 || ipv6}</span>`;
+            }
+
+            const isOK = net.status === "OK";
+
+            listContainer.insertAdjacentHTML('beforeend', `
+                <div class="p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/[0.08] transition-all group">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex gap-3">
+                            <div class="w-10 h-10 rounded-lg ${isOK ? 'bg-primary/10 text-primary' : 'bg-white/5 text-on-surface-variant'} flex items-center justify-center">
+                                <span class="material-symbols-outlined text-xl">${isOK ? 'dns' : 'hub'}</span>
+                            </div>
+                            <div>
+                                <h4 class="font-headline font-bold text-sm tracking-[0.15em] uppercase text-white">${net.nwid}</h4>
+                                <p class="font-label text-[10px] text-on-surface-variant tracking-wider">${net.name || 'Network'}</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" checked class="sr-only peer" onchange="leaveNetwork('${net.nwid}')">
+                            <div class="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white/60 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] font-medium text-on-surface-variant pt-2 border-t border-white/5 tracking-widest">
+                        ${addrHtml}
+                        <span class="${isOK ? 'text-primary font-bold' : 'opacity-50'} uppercase tracking-[0.3em]">${net.status}</span>
+                    </div>
+                </div>
+            `);
+        });
+    }
+
+    async function joinNetwork() {
+        const input = document.getElementById('network-id-input');
+        const btn = document.getElementById('connect-btn');
+        const id = input.value.trim();
+        if (id.length !== 16) return alert("Invalid ID");
+        btn.disabled = true; btn.innerText = "Connecting...";
+
+        const result = await apiRequest('/api/join', 'POST', { networkId: id });
+        if (result && result.success) {
+            input.value = '';
+            launchFireworks(); // 触发增强版烟花
+            setTimeout(loadStatus, 500);
+        } else {
+            alert("Join failed");
+        }
+        btn.disabled = false; btn.innerText = "Connect";
+    }
+
+    async function leaveNetwork(nwid) {
+        if (!confirm(`Leave ${nwid}?`)) return loadStatus();
+        await apiRequest('/api/leave', 'POST', { networkId: nwid });
+        loadStatus();
+    }
+
+    loadStatus();
+    setInterval(loadStatus, 5000);
+</script>
+</body>
+</html>

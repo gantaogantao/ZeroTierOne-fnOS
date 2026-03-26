@@ -1,0 +1,13 @@
+{
+    ".url": {
+        "zerotierone.Application": {
+            "title": "ZeroTier One",
+            "icon": "images/icon_{0}.png",
+            "type": "url",
+            "protocol": "",
+            "port": "9994",
+            "url": "/",
+            "allUsers": false
+        }
+    }
+}

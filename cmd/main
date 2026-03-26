@@ -1,0 +1,301 @@
+#!/bin/bash
+
+# 确保日志目录存在
+mkdir -p "${TRIM_PKGVAR}" 2>/dev/null
+
+LOG_FILE="${TRIM_PKGVAR}/info.log"
+ZT_LOG_FILE="${TRIM_PKGVAR}/zerotier.log"
+WEB_LOG_FILE="${TRIM_PKGVAR}/web.log"
+ZT_CLI="${TRIM_APPDEST}/zerotier/zerotier-cli"
+WEB_SERVER="${TRIM_APPDEST}/server/server.py"
+
+# 用 >> 追加，保留所有日志
+echo "=== $(date '+%Y-%m-%d %H:%M:%S') ===" >> "${LOG_FILE}"
+echo "Arguments: $*" >> "${LOG_FILE}"
+echo "TRIM_PKGVAR=${TRIM_PKGVAR}" >> "${LOG_FILE}"
+echo "TRIM_APPDEST=${TRIM_APPDEST}" >> "${LOG_FILE}"
+echo "Current directory: $(pwd)" >> "${LOG_FILE}"
+echo "User: $(whoami)" >> "${LOG_FILE}"
+
+PID_FILE="${TRIM_PKGVAR}/app.pid"
+WEB_PID_FILE="${TRIM_PKGVAR}/web.pid"
+ZT_HOME="${TRIM_PKGVAR}/zerotier-one"
+ZT_BIN="${TRIM_APPDEST}/zerotier/zerotier-one"
+
+log_msg() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "${LOG_FILE}"
+}
+
+# 检查 ZeroTier 是否在运行（用 zerotier-cli）
+check_zt_running() {
+    if [ -x "${ZT_CLI}" ]; then
+        ZT_HOME="${ZT_HOME}" "${ZT_CLI}" status >/dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            return 0
+        fi
+    fi
+    # 备用方法：检查端口 9993
+    if command -v lsof >/dev/null 2>&1; then
+        lsof -ti :9993 >/dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            return 0
+        fi
+    fi
+    return 1
+}
+
+# 检查 Web UI 是否在运行
+check_web_running() {
+    if [ -f "${WEB_PID_FILE}" ]; then
+        local web_pid=$(head -n 1 "${WEB_PID_FILE}" | tr -d '[:space:]')
+        if kill -0 "${web_pid}" 2>/dev/null; then
+            return 0
+        fi
+    fi
+    # 备用方法：检查端口 9994
+    if command -v lsof >/dev/null 2>&1; then
+        lsof -ti :9994 >/dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            return 0
+        fi
+    fi
+    return 1
+}
+
+start_process() {
+    log_msg "=== start_process called ==="
+    
+    # 先检查并启动 ZeroTier
+    if ! check_zt_running; then
+        log_msg "Starting ZeroTier..."
+        
+        log_msg "Step 1: Kill any existing zerotier-one processes"
+        pkill -f "zerotier-one" 2>/dev/null || true
+        killall -q zerotier-one 2>/dev/null || true
+        sleep 2
+        # 检查并杀掉占用 9993 端口的进程
+        if command -v lsof >/dev/null 2>&1; then
+            lsof -ti :9993 | xargs -r kill -9 2>/dev/null || true
+        fi
+        sleep 1
+        log_msg "Port 9993 cleared"
+        
+        log_msg "Step 2: Create ZT_HOME"
+        mkdir -p "${ZT_HOME}" 2>&1 >> "${LOG_FILE}"
+        log_msg "ZT_HOME=${ZT_HOME}"
+        
+        log_msg "Step 3: Check ZT_BIN"
+        if [ ! -f "${ZT_BIN}" ]; then
+            log_msg "ERROR: ${ZT_BIN} not found!"
+            log_msg "TRIM_APPDEST contents:"
+            ls -la "${TRIM_APPDEST}" 2>&1 >> "${LOG_FILE}"
+            exit 1
+        fi
+        log_msg "OK: ${ZT_BIN} found"
+        
+        if [ ! -x "${ZT_BIN}" ]; then
+            log_msg "ERROR: ${ZT_BIN} not executable!"
+            exit 1
+        fi
+        log_msg "OK: ${ZT_BIN} is executable"
+        
+        log_msg "Step 4: Clear old ZeroTier logs"
+        > "${ZT_LOG_FILE}"
+        
+        log_msg "Step 5: Check /dev/net/tun"
+        if [ -c /dev/net/tun ]; then
+            log_msg "OK: /dev/net/tun exists"
+        else
+            log_msg "WARNING: /dev/net/tun does NOT exist - trying to create"
+            mkdir -p /dev/net 2>&1 >> "${LOG_FILE}"
+            mknod /dev/net/tun c 10 200 2>&1 >> "${LOG_FILE}"
+            chmod 666 /dev/net/tun 2>&1 >> "${LOG_FILE}"
+        fi
+        
+        log_msg "Step 6: Start ZeroTier"
+        cd "${ZT_HOME}"
+        log_msg "Running: ${ZT_BIN} -d"
+        log_msg "ZT_HOME: ${ZT_HOME}"
+        log_msg "Writing ZeroTier output to: ${ZT_LOG_FILE}"
+        
+        # 启动 ZeroTier
+        ZT_HOME="${ZT_HOME}" "${ZT_BIN}" -d >> "${ZT_LOG_FILE}" 2>&1
+        
+        log_msg "Step 7: Wait for ZeroTier to start (up to 15 seconds)"
+        local count=0
+        while [ ${count} -lt 15 ]; do
+            sleep 1
+            count=$((count + 1))
+            log_msg "Waiting for ZeroTier... ${count}s/15s"
+            
+            if check_zt_running; then
+                log_msg "OK: ZeroTier is running!"
+                break
+            fi
+        done
+        
+        if ! check_zt_running; then
+            log_msg "ERROR: ZeroTier did not start after 15 seconds"
+            log_msg "ZeroTier log (last 50 lines):"
+            cat "${ZT_LOG_FILE}" >> "${LOG_FILE}"
+            log_msg "=== FAILURE ==="
+            exit 1
+        fi
+    else
+        log_msg "ZeroTier is already running"
+    fi
+    
+    # 现在启动 Web UI
+    log_msg "Starting Web UI..."
+    
+    if ! check_web_running; then
+        log_msg "Step 8: Check Web UI files"
+        if [ ! -f "${WEB_SERVER}" ]; then
+            log_msg "ERROR: ${WEB_SERVER} not found!"
+            exit 1
+        fi
+        log_msg "OK: ${WEB_SERVER} found"
+        
+        if [ ! -x "${WEB_SERVER}" ]; then
+            log_msg "WARNING: ${WEB_SERVER} not executable - trying to chmod"
+            chmod +x "${WEB_SERVER}" 2>/dev/null
+        fi
+        
+        log_msg "Step 9: Clear old Web UI logs"
+        > "${WEB_LOG_FILE}"
+        
+        log_msg "Step 10: Kill any existing Web UI processes"
+        if [ -f "${WEB_PID_FILE}" ]; then
+            local old_web_pid=$(head -n 1 "${WEB_PID_FILE}" | tr -d '[:space:]')
+            if kill -0 "${old_web_pid}" 2>/dev/null; then
+                kill -TERM "${old_web_pid}" 2>/dev/null
+                sleep 1
+                if kill -0 "${old_web_pid}" 2>/dev/null; then
+                    kill -KILL "${old_web_pid}" 2>/dev/null
+                fi
+            fi
+            rm -f "${WEB_PID_FILE}"
+        fi
+        # 检查并杀掉占用 9994 端口的进程
+        if command -v lsof >/dev/null 2>&1; then
+            lsof -ti :9994 | xargs -r kill -9 2>/dev/null || true
+        fi
+        sleep 1
+        
+        log_msg "Step 11: Start Web UI server"
+        log_msg "Running: python3 ${WEB_SERVER}"
+        log_msg "Writing Web UI output to: ${WEB_LOG_FILE}"
+        
+        # 启动 Web UI
+        cd "${TRIM_APPDEST}"
+        TRIM_APPDEST="${TRIM_APPDEST}" TRIM_PKGVAR="${TRIM_PKGVAR}" python3 "${WEB_SERVER}" >> "${WEB_LOG_FILE}" 2>&1 &
+        WEB_PID=$!
+        log_msg "Web UI PID=${WEB_PID}"
+        
+        log_msg "Step 12: Wait for Web UI to start (up to 5 seconds)"
+        sleep 3
+        
+        if kill -0 "${WEB_PID}" 2>/dev/null; then
+            log_msg "OK: Web UI is running!"
+            printf "%s" "${WEB_PID}" > "${WEB_PID_FILE}"
+            log_msg "Web PID file written"
+        else
+            log_msg "WARNING: Web UI may have died, but ZeroTier is running - continuing"
+        fi
+    else
+        log_msg "Web UI is already running"
+    fi
+    
+    # 创建标记文件
+    touch "${PID_FILE}"
+    log_msg "PID file created"
+    log_msg "=== SUCCESS ==="
+    return 0
+}
+
+stop_process() {
+    log_msg "=== stop_process called ==="
+
+    log_msg "Stopping Web UI..."
+    if [ -f "${WEB_PID_FILE}" ]; then
+        local web_pid=$(head -n 1 "${WEB_PID_FILE}" | tr -d '[:space:]')
+        log_msg "Web UI PID=${web_pid}"
+        
+        if kill -0 "${web_pid}" 2>/dev/null; then
+            log_msg "Sending TERM to Web UI"
+            kill -TERM "${web_pid}" 2>/dev/null
+            sleep 2
+            if kill -0 "${web_pid}" 2>/dev/null; then
+                log_msg "Sending KILL to Web UI"
+                kill -KILL "${web_pid}" 2>/dev/null
+            fi
+        fi
+        rm -f "${WEB_PID_FILE}"
+        log_msg "Web PID file removed"
+    fi
+    
+    log_msg "Stopping ZeroTier..."
+    log_msg "Killing all zerotier-one processes"
+    pkill -f "zerotier-one" 2>/dev/null || true
+    killall -q zerotier-one 2>/dev/null || true
+    
+    # 也杀掉占用 9993 端口的进程
+    if command -v lsof >/dev/null 2>&1; then
+        lsof -ti :9993 | xargs -r kill -9 2>/dev/null || true
+    fi
+    # 也杀掉占用 9994 端口的进程
+    if command -v lsof >/dev/null 2>&1; then
+        lsof -ti :9994 | xargs -r kill -9 2>/dev/null || true
+    fi
+    
+    sleep 2
+    
+    # 删除标记文件
+    rm -f "${PID_FILE}"
+    log_msg "PID file removed"
+    log_msg "=== stop_process done ==="
+    return 0
+}
+
+check_process() {
+    # 这个函数保留兼容
+    if check_zt_running; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+status() {
+    if check_zt_running; then
+        # 确保标记文件存在
+        touch "${PID_FILE}" 2>/dev/null
+        return 0
+    else
+        rm -f "${PID_FILE}" 2>/dev/null
+        rm -f "${WEB_PID_FILE}" 2>/dev/null
+        return 1
+    fi
+}
+
+log_msg "=== Case: $1 ==="
+
+case $1 in
+start)
+    start_process
+    ;;
+stop)
+    stop_process
+    ;;
+status)
+    if status; then 
+        exit 0
+    else 
+        exit 3
+    fi
+    ;;
+*)
+    log_msg "Unknown command: $1"
+    exit 1
+    ;;
+esac

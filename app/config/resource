@@ -1,0 +1,28 @@
+{
+    "data-share":
+    {
+        "shares":
+        [
+            {
+                "name": "zerotierone",
+                "permission":
+                {
+                    "rw":
+                    [
+                        "zerotierone"
+                    ]
+                }
+            },
+            {
+                "name": "zerotierone/data",
+                "permission":
+                {
+                    "rw":
+                    [
+                        "zerotierone"
+                    ]
+                }
+            }
+        ]
+    }
+}
