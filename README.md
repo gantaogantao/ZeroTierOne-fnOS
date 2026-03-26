@@ -25,9 +25,16 @@
 
 遵循 ZeroTier 相关开源协议与 MIT 协议。
 
-## 📸 演示
+## 📸 界面演示
 
-![ZeroTier One UI](zerotier.png)
+### 主页
+![主页](screenshots/screenshot1.png)
+
+### 连接成功庆祝效果
+![连接成功](screenshots/screenshot2.png)
+
+### 已连接状态显示IP
+![已连接](screenshots/screenshot3.png)
 
 ## 🔧 安装
 
