@@ -1,6 +1,6 @@
 # ZeroTier One for fnOS
 
-Native ZeroTier One client package customized for **fei牛 (fnOS) NAS system**, featuring high-performance network service with a modern web-based management UI.
+Native ZeroTier One client package customized for **feiniu (fnOS) NAS system**, featuring high-performance network service with a modern web-based management UI.
 
 ## 🛠 Features
 
