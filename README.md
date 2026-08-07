@@ -2,6 +2,11 @@
 
 [English README](README-en.md) | 中文说明
 
+> **基于 [ZeroTier One](https://github.com/zerotier/ZeroTierOne) 二次开发**
+> 本应用是在 ZeroTier, LLC 开源的 [ZeroTier One](https://github.com/zerotier/ZeroTierOne) 基础上，针对飞牛 fnOS 深度定制封装的客户端（可视化 Web 管理界面 + fnOS 原生生命周期适配）。
+> 底层网络核心、二进制与协议遵循 ZeroTier 相关开源许可证；本应用的上层封装与 UI 遵循 MIT 协议。
+> 版权归属：网络核心 © ZeroTier, LLC；fnOS 适配层 © 梳油头的小男孩。
+
 本应用是针对飞牛 fnOS 深度定制的 ZeroTier One 客户端，集成了高性能网络服务与现代化的 Web 管理界面。
 
 ## 🛠 功能概览
