@@ -72,8 +72,9 @@ Manual install in fnOS App Market:
 ## 📝 Changelog
 
 ### v1.3.7
-* **Fixed developer / distributor attribution**: previously the app detail page showed developer and distributor as the same person with both links pointing to zerotier.com. Now corrected per fnOS manifest spec — Developer: ZeroTier (upstream ZeroTier One project), Distributor: 梳油头的小男孩 (fnOS port & distribution), with links to their respective repos.
-* **Icon redesigned to fnOS design specs**: changed from a square orange block to a rounded-rect icon (22% corner radius, transparent corners, 10% padding) matching system style; also added the previously missing 64px entry icon `icon_64.png`.
+* **App icon redesigned**: rounded-rectangle icon matching fnOS design spec, with a new 64px entry icon.
+* **Web UI visual polish**: added a glowing background effect.
+* **Web self-healing (from v1.3.6)**: if the management UI process exits unexpectedly, it auto-restarts every 30s without affecting VPN networking.
 
 ### v1.3.6
 * **Fixed Web UI occasionally failing to open**: the Web subprocess (port 9994) could silently exit in some environments, while the original health check only watched the VPN core (9993), so the App Center showed "running" but the management page was actually unreachable.
