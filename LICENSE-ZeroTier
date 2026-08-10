@@ -1,0 +1,20 @@
+ZeroTier One 底层网络核心许可证
+=============================
+
+本应用（ZeroTier One for fnOS）的底层网络核心、守护进程二进制与协议实现
+衍生自 ZeroTier, LLC 开源的 ZeroTier One 项目：
+
+  https://github.com/zerotier/ZeroTierOne
+
+版权所有 © 2011-2024 ZeroTier, LLC.
+
+ZeroTier One 以 **Business Source License 1.1 (BSL-1.1)** 发布，并附带
+ZeroTier 自定义的附加条款。BSL-1.1 允许非生产用途免费使用，生产用途
+需获得 ZeroTier 的商业许可。
+
+完整许可证文本见上游仓库：
+
+  https://github.com/zerotier/ZeroTierOne/blob/main/LICENSE.txt
+
+本仓库的 fnOS 适配层（cmd/main、app/server、打包配置与文档）以独立的
+MIT 许可证发布，见 [LICENSE](LICENSE)。

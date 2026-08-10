@@ -2,6 +2,11 @@
 
 [English README](README-en.md) | 中文说明
 
+![Version](https://img.shields.io/badge/version-1.3.7-blue)
+![License](https://img.shields.io/badge/license-MIT%20%2F%20BSL--1.1-green)
+![Platform](https://img.shields.io/badge/platform-fnOS%20%2F%20x86__64-orange)
+![BasedOn](https://img.shields.io/badge/based%20on-ZeroTier%20One-success)
+
 > **基于 [ZeroTier One](https://github.com/zerotier/ZeroTierOne) 二次开发**
 > 本应用是在 ZeroTier, LLC 开源的 [ZeroTier One](https://github.com/zerotier/ZeroTierOne) 基础上，针对飞牛 fnOS 深度定制封装的客户端（可视化 Web 管理界面 + fnOS 原生生命周期适配）。
 > 底层网络核心、二进制与协议遵循 ZeroTier 相关开源许可证；本应用的上层封装与 UI 遵循 MIT 协议。

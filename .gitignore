@@ -1,0 +1,11 @@
+# 构建产物（fpk 通过 GitHub Releases 分发，不进仓库）
+*.fpk
+app.tgz
+
+# 临时/备份
+*.bak
+cmd/main.bak.*
+
+# 系统/编辑器
+.DS_Store
+*.swp

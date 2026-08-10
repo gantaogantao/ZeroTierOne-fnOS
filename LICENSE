@@ -1,26 +1,6 @@
-ZeroTier One for fnOS
-=====================
-
-本仓库包含两部分代码，分别遵循不同的开源许可证：
-
-1. 底层网络核心（ZeroTier One）
----------------------------------
-版权所有 © 2011-2024 ZeroTier, LLC.
-
-底层网络核心、二进制文件与协议实现衍生自 ZeroTier, LLC 开源的
-ZeroTier One 项目：https://github.com/zerotier/ZeroTierOne
-
-ZeroTier One 原始许可证（BSD-3-Clause 衍生）全文见：
-https://github.com/zerotier/ZeroTierOne/blob/main/LICENSE.txt
-
-2. fnOS 适配层（本应用封装与 Web UI）
--------------------------------------
-版权所有 © 梳油头的小男孩（gantaogantao）
-
-本应用针对飞牛 fnOS 的原生生命周期适配、可视化 Web 管理界面与
-相关脚本，以 MIT 许可证发布。
-
 MIT License
+
+Copyright (c) 2024 梳油头的小男孩 (gantaogantao)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
