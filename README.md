@@ -12,16 +12,9 @@
 > 底层网络核心、二进制与协议遵循 ZeroTier 相关开源许可证；本应用的上层封装与 UI 遵循 MIT 协议。
 > 版权归属：网络核心 © ZeroTier, LLC；fnOS 适配层 © 梳油头的小男孩。
 
-## 👥 开发者与发布者
-
-| 角色 | 名称 | 链接 | 职责 |
-|---|---|---|---|
-| **开发者（上游）** | ZeroTier | https://github.com/zerotier/ZeroTierOne | ZeroTier One 网络核心、守护进程与协议实现 |
-| **发布者（fnOS 适配）** | 梳油头的小男孩 | https://github.com/gantaogantao/ZeroTierOne-fnOS | 飞牛 fnOS 原生适配、可视化 Web 管理界面、应用打包与分发 |
-
 本应用是针对飞牛 fnOS 深度定制的 ZeroTier One 客户端，集成了高性能网络服务与现代化的 Web 管理界面。
 
-## 🛠 功能概览
+
 
 * **原生服务集成**：基于 fnOS 原生环境编译，确保 ZeroTier 守护进程在高并发数据传输下的稳定性。
 * **可视化 Web 控制面板**：
