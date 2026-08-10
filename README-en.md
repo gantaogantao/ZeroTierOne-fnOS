@@ -1,5 +1,19 @@
 # ZeroTier One for fnOS
 
+[中文说明](README.md) | English
+
+> **A derivative work based on [ZeroTier One](https://github.com/zerotier/ZeroTierOne)**
+> This application repackages ZeroTier One (open-sourced by ZeroTier, LLC) as a native client deeply customized for feiniu fnOS (visual web management UI + native fnOS lifecycle integration).
+> The underlying network core, binaries and protocol follow ZeroTier's open-source license; the packaging layer and UI of this application are released under MIT.
+> Copyright: network core © ZeroTier, LLC; fnOS integration layer © 梳油头的小男孩.
+
+## 👥 Developer & Distributor
+
+| Role | Name | Link | Responsibility |
+|---|---|---|---|
+| **Developer (upstream)** | ZeroTier | https://github.com/zerotier/ZeroTierOne | ZeroTier One network core, daemon and protocol implementation |
+| **Distributor (fnOS port)** | 梳油头的小男孩 | https://github.com/gantaogantao/ZeroTierOne-fnOS | Native fnOS integration, visual web management UI, packaging and distribution |
+
 Native ZeroTier One client package customized for **feiniu (fnOS) NAS system**, featuring high-performance network service with a modern web-based management UI.
 
 ## 🛠 Features
