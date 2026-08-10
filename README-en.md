@@ -56,16 +56,3 @@ Manual install in fnOS App Market:
 
 * ✅ fnOS >= v0.x (compatible with current feiNiu NAS system)
 * ✅ Supports x86_64 architecture
-
-## 📝 Changelog
-
-### v1.3.7
-* **App icon redesigned**: rounded-rectangle icon matching fnOS design spec, with a new 64px entry icon.
-* **Web UI visual polish**: added a glowing background effect.
-* **Web self-healing (from v1.3.6)**: if the management UI process exits unexpectedly, it auto-restarts every 30s without affecting VPN networking.
-
-### v1.3.6
-* **Fixed Web UI occasionally failing to open**: the Web subprocess (port 9994) could silently exit in some environments, while the original health check only watched the VPN core (9993), so the App Center showed "running" but the management page was actually unreachable.
-  * Added a **Web self-healing watchdog**: a lightweight loop runs after app start, checking 9994 every 30s and auto-restarting the Web subprocess if it's not listening — **without affecting VPN networking (9993)**.
-  * On app stop, the watchdog and Web process are cleaned up together, leaving no residue.
-  * If you previously hit "App Center shows running but management page won't open / clicking open does nothing", upgrading to this version self-heals it — no more manual stop→start.
