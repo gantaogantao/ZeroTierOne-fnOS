@@ -7,14 +7,9 @@
 ![Platform](https://img.shields.io/badge/platform-fnOS%20%2F%20x86__64-orange)
 ![BasedOn](https://img.shields.io/badge/based%20on-ZeroTier%20One-success)
 
-> **基于 [ZeroTier One](https://github.com/zerotier/ZeroTierOne) 二次开发**
-> 本应用是在 ZeroTier, LLC 开源的 [ZeroTier One](https://github.com/zerotier/ZeroTierOne) 基础上，针对飞牛 fnOS 深度定制封装的客户端（可视化 Web 管理界面 + fnOS 原生生命周期适配）。
-> 底层网络核心、二进制与协议遵循 ZeroTier 相关开源许可证；本应用的上层封装与 UI 遵循 MIT 协议。
-> 版权归属：网络核心 © ZeroTier, LLC；fnOS 适配层 © 梳油头的小男孩。
+ZeroTier One 的飞牛 fnOS 原生客户端，集成可视化 Web 管理界面，让你随时远程接入家中局域网。
 
-本应用是针对飞牛 fnOS 深度定制的 ZeroTier One 客户端，集成了高性能网络服务与现代化的 Web 管理界面。
-
-
+## 🛠 功能概览
 
 * **原生服务集成**：基于 fnOS 原生环境编译，确保 ZeroTier 守护进程在高并发数据传输下的稳定性。
 * **可视化 Web 控制面板**：
